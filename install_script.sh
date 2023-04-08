@@ -10,8 +10,6 @@ general_packages=(base-devel git vim neovim firefox nvidia nvidia-utils vlc flam
 
 yay_packages=(lorien-bin visual-studio-code-bin zsh-theme-powerlevel10k-git onlyoffice-bin numix-circle-icon-theme-git neovim-plug qt5-styleplugins)
 
-passmenu_font="Roboto 12"
-
 echo "Please choose what to install:"
 echo "1. You are in Arch installation and went through arch wiki installation guide"
 echo "2. Install general packages"
@@ -79,7 +77,10 @@ case $choice in
 	echo 'alias ll="ls -lAh"' >> ~/.zshrc
 	echo 'bindkey "^[[1;5C" forward-word' >> ~/.zshrc
 	echo 'bindkey "^[[1;5D" backward-word' >> ~/.zshrc
-	sudo chsh -s /bin/zsh
+	chsh -s /bin/zsh
+	autoload -Uz zsh-newuser-install
+	zsh-newuser-install -f
+	echo 'source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme' >>! ~/.zshrc
 	xinput list
 	read -p "Type the touchpad ID " touchpad_id
 	echo "xinput set-prop $touchpad_id 358 1" >> ~/.xsessionrc
@@ -100,6 +101,7 @@ case $choice in
 
 	git config --global user.name "Renaldas"
 	git config --global user.email "renaldas1251@gmail.com"
+	git config --global init.defaultBranch "master"
 
 	# We add this so it doesnt ask when cloning for the first time
 	echo "Host *" >> ~/.ssh/config
