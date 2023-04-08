@@ -5,11 +5,11 @@ arch_packages=(grub efibootmgr xorg sudo dhcpcd networkmanager alsa-utils pipewi
 # Computer specific packages
 arch_packages+=(sof-firmware intel-ucode)
 # Window manager packages
-arch_packages+=(awesome xorg-xinit pavucontrol nemo ranger gnome-terminal htop picom lxappearance rofi xterm zsh ttf-roboto ttf-dejavu noto-fonts dmenu xdg-user-dirs polkit-gnome gnome-keyring xfce4-power-manager acpid)
+arch_packages+=(awesome xorg-xinit pavucontrol nemo ranger terminator htop picom lxappearance rofi xterm zsh ttf-roboto ttf-dejavu noto-fonts dmenu xdg-user-dirs polkit-gnome gnome-keyring xfce4-power-manager acpid network-manager-applet)
 
 general_packages=(base-devel git vim neovim firefox nvidia nvidia-utils vlc flameshot pass feh gedit steam xclip numlockx gparted grub-customizer)
 
-yay_packages=(lorien-bin visual-studio-code-bin zsh-theme-powerlevel10k-git onlyoffice-bin numix-circle-icon-theme-git neovim-plug vim-plug qt5-styleplugins oh-my-zsh-git gnome-terminal-transparency)
+yay_packages=(lorien-bin visual-studio-code-bin zsh-theme-powerlevel10k-git onlyoffice-bin numix-circle-icon-theme-git neovim-plug vim-plug qt5-styleplugins oh-my-zsh-git gnome-terminal-transparency pn-mixer)
 
 #############################################################
 
@@ -142,6 +142,10 @@ case $choice in
 	read -p "Copy paste touchpad name " touchpad_name
 	echo "xinput set-prop \"$touchpad_name\" 'libinput Tapping Enabled' 1" >> ~/.profile
 	echo "xinput set-prop \"$touchpad_name\" 'libinput Natural Scrolling Enabled' 1" >> ~/.profile
+
+    # Add to startup
+    echo "nm-applet &" >> ~/.profile
+    echo "pnmixer &" >> ~/.profile
 
     # Make applications look uniform
 	#echo "XDG_CURRENT_DESKTOP=Unity" | sudo tee -a /etc/environment
