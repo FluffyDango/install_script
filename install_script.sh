@@ -27,7 +27,7 @@ case $choice in
 	read -p "Enter a new user: " user_name
 	read -p "Enter the user password: " user_password
 	useradd -m -G wheel "$user_name"
-	echo "$user_password" | passwd --stdin "$user_name"
+	echo "$user_name:$user_password" | chpasswd
 	echo "%whell ALL=(ALL) ALL" >> /etc/sudoers
 	grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id="$boot_id"
 	grub-mkconfig -o /boot/grub/grub.cfg
