@@ -8,7 +8,7 @@ arch_packages+=(awesome gparted xorg-xinit pavucontrol nemo ranger terminator ht
 
 general_packages=(base-devel git vim neovim firefox nvidia nvidia-utils vlc flameshot pass feh gedit steam xclip)
 
-yay_packages=(lorien-bin visual-studio-code-bin zsh-theme-powerlevel10k-git onlyoffice-bin numix-circle-icon-theme-git neovim-plug qt5-styleplugins)
+yay_packages=(lorien-bin visual-studio-code-bin zsh-theme-powerlevel10k-git onlyoffice-bin numix-circle-icon-theme-git neovim-plug vim-plug qt5-styleplugins oh-my-zsh-git)
 
 echo "Please choose what to install:"
 echo "1. You are in Arch installation and went through arch wiki installation guide"
@@ -18,7 +18,7 @@ echo "4. Install and setup lightdm"
 echo "5. Additional setup"
 echo "6. Setup git ssh and install all repositories"
 
-read -p "Enter your choice [1-5]: " choice
+read -p "Enter your choice [1-6]: " choice
 
 case $choice in
 1)
@@ -32,7 +32,6 @@ case $choice in
 	grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id="$boot_id"
 	grub-mkconfig -o /boot/grub/grub.cfg
 	echo "exec awesome" > /home/"$user_name"/.xinitrc
-	timedatectl set-local-rtc 1
 	systemctl enable dhcpcd
 	systemctl enable NetworkManager
 ;;
@@ -55,7 +54,7 @@ case $choice in
 ;;
 
 4)
-	sudo pacman -S lightdm
+	sudo pacman -S --noconfirm lightdm
 	yay -S --noconfirm lightdm-webkit2-theme-glorious
 	# these commands are from webkit2-glorious github
 	sudo sed -i 's/^\(#?greeter\)-session\s*=\s*\(.*\)/greeter-session = lightdm-webkit2-greeter #\1/ #\2g' /etc/lightdm/lightdm.conf
@@ -69,30 +68,39 @@ case $choice in
 ;;
 
 5)
+    echo "You have to be in a X session to continue"
+    echo "Press enter to continue"
+    read
 	systemctl --user enable pipewire.service
 	systemctl --user start pipewire.service
-	systemctl --user enable pipwire-pulse.service
-	systemctl --user start pipwire-pulse.service
+	systemctl --user enable pipewire-pulse.service
+	systemctl --user start pipewire-pulse.service
 	xdg-user-dirs-update
 	echo 'alias ll="ls -lAh"' >> ~/.zshrc
+    echo 'alias ..="cd .."' >> ~/.zshrc
+    echo '' >> ~/.zshrc
 	echo 'bindkey "^[[1;5C" forward-word' >> ~/.zshrc
 	echo 'bindkey "^[[1;5D" backward-word' >> ~/.zshrc
 	chsh -s /bin/zsh
 	autoload -Uz zsh-newuser-install
 	zsh-newuser-install -f
-	echo 'source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme' >>! ~/.zshrc
+	echo 'source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme' >> ~/.zshrc
 	xinput list
 	read -p "Type the touchpad ID " touchpad_id
 	echo "xinput set-prop $touchpad_id 358 1" >> ~/.xsessionrc
 	echo "xinput set-prop $touchpad_id 329 1" >> ~/.xsessionrc
 	chmod +x ~/.xsessionrc
 	echo "XDG_CURRENT_DESKTOP=Unity" | sudo tee -a /etc/environment
-	echo "QT_QPA_PLATFORMTHEME=gtk2" | sude tee -a /etc/environment
+	echo "QT_QPA_PLATFORMTHEME=gtk2" | sudo tee -a /etc/environment
 	mkdir -p ~/.config/awesome
 	cp /etc/xdg/awesome/rc.lua ~/.config/awesome
+	sudo timedatectl set-local-rtc 1
 ;;
 
 6)
+    echo "You will have to open firefox and add new ssh id"
+    echo "Press enter to continue"
+    read
 	ssh-keygen -t rsa
 	cat ~/.ssh/id_rsa.pub | xclip -selection clipboard
 	echo "The public key has been copied to clipboard. Go to github and add new ssh key."
@@ -126,12 +134,10 @@ case $choice in
 	mv init.vim ~/.config/nvim
 	nvim --headless +PlugInstall +qall
 	mv dircolors ~/.config
-	echo "eval \$(dircolors -b ~/.config/dircolors/dircolors.nord)" >> ~/.zshrc
+	echo "eval \$(dircolors -b ~/.config/dircolors/.dir_colors.nord)" >> ~/.zshrc
+    cd ..
 
 	git clone git@github.com:FluffyDango/passwords.git ~/.password-store
 	gpg --import private.key
-	
-	echo "!!!"
-	echo "Do not forget to run ':PlugInstall' after opening nvim"
 ;;
 esac
