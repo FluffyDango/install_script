@@ -1,15 +1,19 @@
 #!/bin/bash
 
 # System packages
-arch_packages=(grub efibootmgr xorg sudo dhcpcd networkmanager alsa-utils pipewire wireplumber pipewire-alsa pipewire-pulse)
+arch_packages=(grub efibootmgr xorg sudo networkmanager alsa-utils pipewire wireplumber pipewire-alsa pipewire-pulse linux-lts linux-lts-headers git)
 # Computer specific packages
 arch_packages+=(sof-firmware intel-ucode)
-# Window manager packages
-arch_packages+=(awesome xorg-xinit pavucontrol nemo ranger terminator htop picom lxappearance rofi xterm zsh ttf-roboto ttf-dejavu noto-fonts dmenu xdg-user-dirs polkit-gnome gnome-keyring xfce4-power-manager acpid network-manager-applet)
+# Window manager packages for decent functionality
+arch_packages+=(awesome xorg-xinit picom lxappearance nitrogen rofi dmenu xterm xdg-user-dirs udiskie pavucontrol polkit-gnome gnome-keyring network-manager-applet volumeicon xfce4-power-manager fcitx-mozc fcitx-configtool fcitx-im autorandr arandr bluez bluez-utils blueman)
+# Preferences
+arch_packages+=(htop terminator engrampa)
+# Fonts
+arch_packages+=(ttf-roboto ttf-dejavu noto-fonts noto-fonts-emoji ttf-hanazono adobe-source-han-sans-jp-fonts otf-ipafont ttf-baekmuk)
 
-general_packages=(base-devel git vim neovim firefox nvidia nvidia-utils vlc flameshot pass feh gedit steam xclip numlockx gparted grub-customizer)
+general_packages=(base-devel vim neovim firefox lib32-nvidia-utils nvidia-lts nvidia-utils vlc flameshot pass feh gedit steam xclip numlockx gparted grub-customizer nemo zsh font-manager discord wine)
 
-yay_packages=(lorien-bin visual-studio-code-bin zsh-theme-powerlevel10k-git onlyoffice-bin numix-circle-icon-theme-git neovim-plug vim-plug qt5-styleplugins oh-my-zsh-git gnome-terminal-transparency pn-mixer)
+yay_packages=(lorien-bin visual-studio-code-bin zsh-theme-powerlevel10k-git onlyoffice-bin numix-circle-icon-theme-git neovim-plug vim-plug qt5-styleplugins oh-my-zsh-git gnome-terminal-transparency optimus-manager optimus-manager-qt)
 
 #############################################################
 
@@ -46,14 +50,30 @@ case $choice in
 
     # Install grub
 	grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id="$boot_id"
+    # remove '#' from os_prober
+    sed -Ei 's/#(GRUB_DISABLE_OS_PROBER=false)/\1/' /etc/default/grub
+    # change grub_timeout to 2 instead of 5
+    sed -Ei 's/(GRUB_TIMEOUT=)5/\12/' /etc/default/grub
+    # install theme
+    git clone https://github.com/vinceliuice/grub2-themes.git
+    cd grub2-themes
+    ./install.sh -t whitesur -i whitesur
+    cd ..
+    rm -r grub2-themes
+    echo "GRUB_THEME=/usr/share/grub/themes/whitesur/theme.txt" >> /etc/default/grub
 	grub-mkconfig -o /boot/grub/grub.cfg
 
     # Used by startx
 	echo "exec awesome" > /home/"$user_name"/.xinitrc
 
-    # Without dhcpcd no network
-	systemctl enable dhcpcd
+    # Often missed config
+    echo "127.0.0.1   localhost" > /etc/hosts
+    echo "::1         localhost" >> /etc/hosts
+    echo "127.0.1.1   g3-3590.localdomain  g3-3590" >> /etc/hosts
+
 	systemctl enable NetworkManager
+    systemctl enable optimus-manager
+    systemctl enable bluetooth
 ;;
 
 ########################################################
@@ -96,15 +116,6 @@ case $choice in
 	sudo sed -i 's/^webkit_theme\s*=\s*\(.*\)/webkit_theme = glorious #\1/g' /etc/lightdm/lightdm-webkit2-greeter.conf
 	sudo sed -i 's/^debug_mode\s*=\s*\(.*\)/debug_mode = true #\1/g' /etc/lightdm/lightdm-webkit2-greeter.conf
     
-    # start gnome-keyring on every session (it stores passwords)
-	echo "eval \$(/usr/bin/gnome-keyring-daemon --start --components=pkcs11,secrets,ssh)" >> ~/.profile
-    echo "SSH_AUTH_SOCK=/run/user/1000/keyring/ssh" >> ~/.profile
-	echo "export SSH_AUTH_SOCK" >> ~/.profile
-    # start polkit
-	echo "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &" >> ~/.profile
-    # Make numberpad usable
-    echo "numlockx on" >> ~/.profile
-
     # Auto start lightdm
 	systemctl enable lightdm
 ;;
@@ -125,8 +136,9 @@ case $choice in
 	xdg-user-dirs-update
 
     # Zsh setup
-	echo 'alias ll="ls -lAh"' >> ~/.zshrc
+	echo 'alias ll="ls -lAh --color=always"' >> ~/.zshrc
     echo 'alias ..="cd .."' >> ~/.zshrc
+    echo 'alias less="less -r"' >> ~/.zshrc
     echo '' >> ~/.zshrc
 	echo 'bindkey "^[[1;5C" forward-word' >> ~/.zshrc
 	echo 'bindkey "^[[1;5D" backward-word' >> ~/.zshrc
@@ -137,19 +149,34 @@ case $choice in
 	autoload -Uz zsh-newuser-install
 	zsh-newuser-install -f
 
+    # Launch on session start
     # Touchpad setup
 	xinput list
 	read -p "Copy paste touchpad name " touchpad_name
 	echo "xinput set-prop \"$touchpad_name\" 'libinput Tapping Enabled' 1" >> ~/.profile
 	echo "xinput set-prop \"$touchpad_name\" 'libinput Natural Scrolling Enabled' 1" >> ~/.profile
-
     # Add to startup
-    echo "nm-applet &" >> ~/.profile
-    echo "pnmixer &" >> ~/.profile
+    echo "nm-applet --indicator &" >> ~/.profile
+    echo "(sleep 1; volumeicon) &" >> ~/.profile
+    echo "xfce4-power-manager &" >> ~/.profile
+    echo "optimus-manager-qt &" >> ~/.profile
+    echo "udiskie -s &" >> ~/.profile
+    echo "nitrogen --restore" >> ~/.profile
+    echo "picom --config ~/.config/awesome/configurations/picom.conf &" >> ~/.profile
+    # start gnome-keyring on every session (it stores passwords)
+	echo "eval \$(/usr/bin/gnome-keyring-daemon --start --components=pkcs11,secrets,ssh)" >> ~/.profile
+    echo "SSH_AUTH_SOCK=/run/user/1000/keyring/ssh" >> ~/.profile
+	echo "export SSH_AUTH_SOCK" >> ~/.profile
+    # start polkit
+	echo "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &" >> ~/.profile
+    # Make numberpad usable
+    echo "numlockx on" >> ~/.profile
 
-    # Make applications look uniform
-	#echo "XDG_CURRENT_DESKTOP=Unity" | sudo tee -a /etc/environment
-	#echo "QT_QPA_PLATFORMTHEME=gtk2" | sudo tee -a /etc/environment
+
+    echo "GTK_IM_MODULE=fcitx" | sudo tee -a /etc/environment
+    echo "QT_IM_MODULE=fcitx" | sudo tee -a /etc/environment
+    echo "XMODIFIERS=@im=fcitx" | sudo tee -a /etc/environment
+
 
     # Fetch default rc.lua
 	mkdir -p ~/.config/awesome
