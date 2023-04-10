@@ -122,7 +122,7 @@ case $choice in
 
 ###########################################
 5)
-    echo "You have to be in a X session to continue"
+    echo "Warning: you have to be in a X session to continue"
     echo "Press enter to continue"
     read
     # Enable pipewire (sound)
@@ -203,8 +203,11 @@ case $choice in
 	read
     
     # Set default git config
-	git config --global user.name "Renaldas"
-	git config --global user.email "renaldas1251@gmail.com"
+    echo "Enter config:"
+    read -p "git config --global user.name " name
+	git config --global user.name "$name"
+    read -p "git config --global user.email " email
+	git config --global user.email "$email"
 	git config --global init.defaultBranch "main"
 
 	# We add this so it doesnt ask when git cloning for the first time
@@ -226,7 +229,6 @@ case $choice in
 	mv .bashrc ~/.bashrc
     # my own scripts
     mv screenfix.sh ~/.config
-    mv wallpaper.sh ~/.config
     # dircolors for ls
 	mv dircolors ~/.config
 	echo "eval \$(dircolors -b ~/.config/dircolors/.dir_colors.nord)" >> ~/.zshrc
