@@ -14,7 +14,7 @@ arch_packages+=(htop terminator engrampa)
 # Fonts
 arch_packages+=(ttf-roboto ttf-dejavu noto-fonts noto-fonts-emoji ttf-hanazono adobe-source-han-sans-jp-fonts otf-ipafont ttf-baekmuk ttf-bitstream-vera ttf-inconsolata ttf-ubuntu-font-family ttf-dejavu ttf-freefont ttf-linux-libertine ttf-liberation)
 
-general_packages=(base-devel vim neovim firefox lib32-nvidia-utils nvidia-lts nvidia-utils nvidia-settings lib32-primus vlc flameshot pass feh gedit steam xclip numlockx gparted grub-customizer nemo zsh font-manager discord wine calibre usb_modeswitch)
+general_packages=(base-devel jre-openjdk jdk-openjdk vim neovim firefox lib32-nvidia-utils nvidia-lts nvidia-utils nvidia-settings lib32-primus vlc flameshot pass feh gedit steam xclip numlockx gparted grub-customizer nemo nemo-fileroller zsh font-manager discord wine calibre usb_modeswitch gvfs gvfs-gphoto2 android-file-transfer)
 
 yay_packages=(lorien-bin visual-studio-code-bin zsh-theme-powerlevel10k-git onlyoffice-bin numix-circle-icon-theme-git neovim-plug vim-plug qt5-styleplugins oh-my-zsh-git gnome-terminal-transparency optimus-manager optimus-manager-qt teams evince-no-gnome)
 # Fonts
