@@ -1,22 +1,22 @@
-#!/bin/bash
+
 
 # Shell options
 set -o errexit nounset
 
 # System packages
-arch_packages=(grub efibootmgr xorg sudo networkmanager alsa-utils pipewire wireplumber pipewire-alsa pipewire-pulse alsa-firmware linux-lts linux-lts-headers git)
+arch_packages=(grub efibootmgr xorg sudo networkmanager alsa-utils pipewire wireplumber pipewire-alsa pipewire-pulse alsa-firmware linux-lts linux-lts-headers git dhcpcd pinentry)
 # Computer specific packages
 arch_packages+=(sof-firmware intel-ucode)
 # Window manager packages for decent functionality
-arch_packages+=(awesome xorg-xinit picom lxappearance nitrogen rofi dmenu xterm xdg-user-dirs udiskie pavucontrol polkit-gnome gnome-keyring network-manager-applet volumeicon xfce4-power-manager fcitx-mozc fcitx-configtool fcitx-im autorandr arandr bluez bluez-utils blueman eog xcompmgr gnome-calculator)
+arch_packages+=(awesome xorg-xinit picom lxappearance nitrogen rofi dmenu xterm xdg-user-dirs udiskie pavucontrol polkit-gnome gnome-keyring network-manager-applet volumeicon xfce4-power-manager fcitx-mozc fcitx-configtool fcitx-im autorandr arandr bluez bluez-utils blueman eog xcompmgr gnome-calculator iwd)
 # Preferences
 arch_packages+=(htop terminator engrampa)
 # Fonts
 arch_packages+=(ttf-roboto ttf-dejavu noto-fonts noto-fonts-emoji ttf-hanazono adobe-source-han-sans-jp-fonts otf-ipafont ttf-baekmuk ttf-bitstream-vera ttf-inconsolata ttf-ubuntu-font-family ttf-dejavu ttf-freefont ttf-linux-libertine ttf-liberation)
 
-general_packages=(base-devel jre-openjdk jdk-openjdk vim neovim firefox lib32-nvidia-utils nvidia-lts nvidia-utils nvidia-settings lib32-primus vlc flameshot pass feh gedit steam xclip numlockx gparted grub-customizer nemo nemo-fileroller zsh font-manager discord wine calibre usb_modeswitch gvfs gvfs-gphoto2 android-file-transfer)
+general_packages=(base-devel jre-openjdk jdk-openjdk vim neovim firefox lib32-nvidia-utils nvidia-lts nvidia-utils nvidia-settings lib32-primus vlc flameshot pass feh gedit steam xclip numlockx gparted grub-customizer nautilus zsh font-manager discord calibre usb_modeswitch gvfs gvfs-gphoto2 android-file-transfer)
 
-yay_packages=(lorien-bin visual-studio-code-bin zsh-theme-powerlevel10k-git onlyoffice-bin numix-circle-icon-theme-git neovim-plug vim-plug qt5-styleplugins oh-my-zsh-git gnome-terminal-transparency optimus-manager optimus-manager-qt teams evince-no-gnome)
+yay_packages=(lorien-bin visual-studio-code-bin zsh-theme-powerlevel10k-git onlyoffice-bin numix-circle-icon-theme-git neovim-plug vim-plug qt5-styleplugins oh-my-zsh-git gnome-terminal-transparency optimus-manager optimus-manager-qt teamseevince-no-gnome)
 # Fonts
 yay_packages+=(ttf-ms-fonts ttf-vista-fonts ttf-monaco ttf-qurancomplex-fonts)
 
@@ -78,8 +78,11 @@ case $choice in
     echo "::1         localhost" >> /etc/hosts
     echo "127.0.1.1   g3-3590.localdomain  g3-3590" >> /etc/hosts
 
-	systemctl enable NetworkManager
-    systemctl enable bluetooth
+    echo "arch" > /etc/hostname
+
+    systemctl enable NetworkManager
+    systemctl enable dhcpcd
+    #systemctl enable bluetooth
 ;;
 
 ########################################################
@@ -129,32 +132,32 @@ case $choice in
 
 ###########################################
 5)
-    echo "Warning: you have to be in a X session to continue"
-    echo "Press enter to continue"
-    read
+    #echo "Warning: you have to be in a X session to continue"
+    #echo "Press enter to continue"
+    #read
     # Enable pipewire (sound)
-	systemctl --user enable pipewire.service
-	systemctl --user start pipewire.service
+#	systemctl --user enable pipewire.service
+#	systemctl --user start pipewire.service
     # pipewire-pulse mostly for legacy (pavucontrol also)
-	systemctl --user enable pipewire-pulse.service
-	systemctl --user start pipewire-pulse.service
+#	systemctl --user enable pipewire-pulse.service
+#	systemctl --user start pipewire-pulse.service
 
     # Create common directories: Downloads, Documents, etc.
-	xdg-user-dirs-update
+#	xdg-user-dirs-update
 
     # Zsh setup
-	echo 'alias ll="ls -lAh --color=always"' >> ~/.zshrc
-    echo 'alias ..="cd .."' >> ~/.zshrc
-    echo 'alias less="less -r"' >> ~/.zshrc
-    echo '' >> ~/.zshrc
-	echo 'bindkey "^[[1;5C" forward-word' >> ~/.zshrc
-	echo 'bindkey "^[[1;5D" backward-word' >> ~/.zshrc
-	echo 'source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme' >> ~/.zshrc
-	chsh -s /bin/zsh
+ #   echo 'alias ll="ls -lAh --color=always"' >> ~/.zshrc
+  #  echo 'alias ..="cd .."' >> ~/.zshrc
+   # echo 'alias less="less -r"' >> ~/.zshrc
+   # echo '' >> ~/.zshrc	
+   # echo 'bindkey "^[[1;5C" forward-word' >> ~/.zshrc
+    #echo 'bindkey "^[[1;5D" backward-word' >> ~/.zshrc
+    #echo 'source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme' >> ~/.zshrc
+    #chsh -s /bin/zsh
 
     # oh-my-zsh commmands
-	autoload -Uz zsh-newuser-install
-	zsh-newuser-install -f
+	#autoload -Uz zsh-newuser-install
+	#zsh-newuser-install -f
 
     # Launch on session start
     # Touchpad setup
@@ -186,14 +189,17 @@ case $choice in
 
 
     # Fetch default rc.lua
-	mkdir -p ~/.config/awesome
-	cp /etc/xdg/awesome/rc.lua ~/.config/awesome
+	#mkdir -p ~/.config/awesome
+	#cp /etc/xdg/awesome/rc.lua ~/.config/awesome
 
     # Make time local, not use hardware clock
 	sudo timedatectl set-local-rtc 1
 
     # Make everything scale
     echo "Xft.dpi: 110" > ~/.Xresources
+
+    # Add gnome as pinentry
+    echo "pinentry-program /usr/bin/pinentry-gnome3" > ~/.gnupg/gpg-agent.conf
 ;;
 
 #############################################################
@@ -249,4 +255,4 @@ case $choice in
 	git clone git@github.com:FluffyDango/passwords.git ~/.password-store
 	gpg --import private.key
 ;;
-esac
+
