@@ -1,16 +1,15 @@
-
-
 # Shell options
 set -o errexit nounset
 
 # System packages
-arch_packages=(grub efibootmgr xorg sudo networkmanager alsa-utils pipewire wireplumber pipewire-alsa pipewire-pulse alsa-firmware linux-lts linux-lts-headers git dhcpcd pinentry)
+arch_packages=(grub efibootmgr xorg sudo networkmanager alsa-utils pipewire wireplumber pipewire-alsa pipewire-pulse alsa-firmware linux-lts linux-lts-headers git pinentry)
 # Computer specific packages
 arch_packages+=(sof-firmware intel-ucode)
 # Window manager packages for decent functionality
-arch_packages+=(awesome xorg-xinit picom lxappearance nitrogen rofi dmenu xterm xdg-user-dirs udiskie pavucontrol polkit-gnome gnome-keyring network-manager-applet volumeicon xfce4-power-manager fcitx-mozc fcitx-configtool fcitx-im autorandr arandr bluez bluez-utils blueman eog xcompmgr gnome-calculator iwd)
+WINDOW_MANAGER=qtile
+arch_packages+=($WINDOW_MANAGER xorg-xinit picom lxappearance nitrogen rofi dmenu xterm xdg-user-dirs udiskie pavucontrol polkit-gnome gnome-keyring network-manager-applet networkmanager-openconnect webkit2gtk volumeicon xfce4-power-manager fcitx-mozc fcitx-configtool fcitx-im autorandr arandr bluez bluez-utils blueman eog xcompmgr gnome-calculator iwd timeshift)
 # Preferences
-arch_packages+=(htop terminator engrampa)
+arch_packages+=(htop engrampa)
 # Fonts
 arch_packages+=(ttf-roboto ttf-dejavu noto-fonts noto-fonts-emoji ttf-hanazono adobe-source-han-sans-jp-fonts otf-ipafont ttf-baekmuk ttf-bitstream-vera ttf-inconsolata ttf-ubuntu-font-family ttf-dejavu ttf-freefont ttf-linux-libertine ttf-liberation)
 
@@ -40,8 +39,9 @@ case $choice in
 	pacman -S "${arch_packages[@]}" --noconfirm
 
     # User setup
-    echo ""
+    echo "Press any key to continue"
     read
+    read -p "Enter hostname: " hostname
 	read -p "Enter a new user: " user_name
 	read -p "Enter the user password: " user_password
 
@@ -71,17 +71,16 @@ case $choice in
 	grub-mkconfig -o /boot/grub/grub.cfg
 
     # Used by startx
-	echo "exec awesome" > /home/"$user_name"/.xinitrc
+	echo "exec $WINDOW_MANAGER" > /home/"$user_name"/.xinitrc
 
     # Often missed config
     echo "127.0.0.1   localhost" > /etc/hosts
     echo "::1         localhost" >> /etc/hosts
-    echo "127.0.1.1   g3-3590.localdomain  g3-3590" >> /etc/hosts
+    echo "127.0.1.1   ${hostname}.localdomain  $hostname" >> /etc/hosts
 
-    echo "arch" > /etc/hostname
+    echo "$hostname" > /etc/hostname
 
     systemctl enable NetworkManager
-    systemctl enable dhcpcd
     #systemctl enable bluetooth
 ;;
 
@@ -117,7 +116,7 @@ case $choice in
     # Enable numpad (numlock)
     sudo sed -i "s/\#greeter-setup-script=/greeter-setup-script=\/usr\/bin\/numlockx on/" /etc/lightdm/lightdm.conf
     # Autologin stuff (Remember that user has to be in autologin group)
-    sudo sed -i "s/\#user-session=/user-session=awesome/" /etc/lightdm/lightdm.conf
+    sudo sed -i "s/\#user-session=/user-session='$WINDOW_MANAGER'/" /etc/lightdm/lightdm.conf
     sudo sed -i "s/\#autologin-user-timeout=0/autologin-user-timeout=0/" /etc/lightdm/lightdm.conf
     sudo sed -i "s/\#autologin-user=/autologin-user=$USER/" /etc/lightdm/lightdm.conf
 
@@ -127,37 +126,38 @@ case $choice in
     
     # Auto start lightdm
 	sudo systemctl enable lightdm
-    sudo systemctl enable optimus-manager
 ;;
 
 ###########################################
 5)
-    #echo "Warning: you have to be in a X session to continue"
-    #echo "Press enter to continue"
-    #read
+    echo "Warning: you have to be in a X session to continue"
+    echo "Press enter to continue"
+    read
     # Enable pipewire (sound)
-#	systemctl --user enable pipewire.service
-#	systemctl --user start pipewire.service
+	systemctl --user enable pipewire.service
+	systemctl --user start pipewire.service
     # pipewire-pulse mostly for legacy (pavucontrol also)
-#	systemctl --user enable pipewire-pulse.service
-#	systemctl --user start pipewire-pulse.service
+	systemctl --user enable pipewire-pulse.service
+	systemctl --user start pipewire-pulse.service
+
+    sudo systemctl enable optimus-manager
 
     # Create common directories: Downloads, Documents, etc.
-#	xdg-user-dirs-update
+	xdg-user-dirs-update
 
     # Zsh setup
- #   echo 'alias ll="ls -lAh --color=always"' >> ~/.zshrc
-  #  echo 'alias ..="cd .."' >> ~/.zshrc
-   # echo 'alias less="less -r"' >> ~/.zshrc
-   # echo '' >> ~/.zshrc	
-   # echo 'bindkey "^[[1;5C" forward-word' >> ~/.zshrc
-    #echo 'bindkey "^[[1;5D" backward-word' >> ~/.zshrc
-    #echo 'source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme' >> ~/.zshrc
-    #chsh -s /bin/zsh
+    echo 'alias ll="ls -lAh --color=always"' >> ~/.zshrc
+    echo 'alias ..="cd .."' >> ~/.zshrc
+    echo 'alias less="less -r"' >> ~/.zshrc
+    echo '' >> ~/.zshrc	
+    echo 'bindkey "^[[1;5C" forward-word' >> ~/.zshrc
+    echo 'bindkey "^[[1;5D" backward-word' >> ~/.zshrc
+    echo 'source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme' >> ~/.zshrc
+    chsh -s /bin/zsh
 
     # oh-my-zsh commmands
-	#autoload -Uz zsh-newuser-install
-	#zsh-newuser-install -f
+	autoload -Uz zsh-newuser-install
+	zsh-newuser-install -f
 
     # Launch on session start
     # Touchpad setup
@@ -208,9 +208,9 @@ case $choice in
     echo "Press enter to continue"
     read
     # Generate new ssh key
-	ssh-keygen -t rsa
+	ssh-keygen -t ed25519
     # Copy to clipboard
-	cat ~/.ssh/id_rsa.pub | xclip -selection clipboard
+	cat ~/.ssh/id_ed25519.pub | xclip -selection clipboard
 	echo "The public key has been copied to clipboard. Go to github and add new ssh key."
 	echo "Press enter after ssh has been added to github"
 	read
@@ -255,4 +255,4 @@ case $choice in
 	git clone git@github.com:FluffyDango/passwords.git ~/.password-store
 	gpg --import private.key
 ;;
-
+esac
