@@ -7,7 +7,7 @@ arch_packages=(grub efibootmgr xorg sudo networkmanager alsa-utils pipewire wire
 arch_packages+=(sof-firmware intel-ucode)
 # Window manager packages for decent functionality
 WINDOW_MANAGER=qtile
-arch_packages+=($WINDOW_MANAGER xorg-xinit picom lxappearance nitrogen rofi dmenu xterm xdg-user-dirs udiskie pavucontrol polkit-gnome gnome-keyring network-manager-applet networkmanager-openconnect webkit2gtk volumeicon xfce4-power-manager fcitx-mozc fcitx-configtool fcitx-im autorandr arandr bluez bluez-utils blueman eog xcompmgr gnome-calculator iwd timeshift)
+arch_packages+=($WINDOW_MANAGER xorg-xinit picom lxappearance nitrogen rofi dmenu xterm xdg-user-dirs udiskie pavucontrol polkit-gnome gnome-keyring network-manager-applet networkmanager-openconnect webkit2gtk volumeicon xfce4-power-manager fcitx-mozc fcitx-configtool fcitx-im autorandr arandr bluez bluez-utils blueman eog xcompmgr gnome-calculator iwd timeshift bleachbit gnome-system-monitor gnome-usage)
 # Preferences
 arch_packages+=(htop engrampa)
 # Fonts
@@ -15,7 +15,7 @@ arch_packages+=(ttf-roboto ttf-dejavu noto-fonts noto-fonts-emoji ttf-hanazono a
 
 general_packages=(base-devel jre-openjdk jdk-openjdk vim neovim firefox lib32-nvidia-utils nvidia-lts nvidia-utils nvidia-settings lib32-primus vlc flameshot pass feh gedit steam xclip numlockx gparted grub-customizer nautilus zsh font-manager discord calibre usb_modeswitch gvfs gvfs-gphoto2 android-file-transfer)
 
-yay_packages=(lorien-bin visual-studio-code-bin zsh-theme-powerlevel10k-git onlyoffice-bin numix-circle-icon-theme-git neovim-plug vim-plug qt5-styleplugins oh-my-zsh-git gnome-terminal-transparency optimus-manager optimus-manager-qt teamseevince-no-gnome)
+yay_packages=(lorien-bin visual-studio-code-bin zsh-theme-powerlevel10k-git onlyoffice-bin numix-circle-icon-theme-git neovim-plug vim-plug qt5-styleplugins oh-my-zsh-git gnome-terminal-transparency optimus-manager optimus-manager-qt downgrade teams)
 # Fonts
 yay_packages+=(ttf-ms-fonts ttf-vista-fonts ttf-monaco ttf-qurancomplex-fonts)
 
@@ -166,21 +166,21 @@ case $choice in
 	echo "xinput set-prop \"$touchpad_name\" 'libinput Tapping Enabled' 1" >> ~/.profile
 	echo "xinput set-prop \"$touchpad_name\" 'libinput Natural Scrolling Enabled' 1" >> ~/.profile
     # Add to startup
-    echo "nm-applet --indicator &" >> ~/.profile
-    echo "(sleep 1; volumeicon) &" >> ~/.profile
-    echo "xfce4-power-manager &" >> ~/.profile
-    echo "optimus-manager-qt &" >> ~/.profile
-    echo "udiskie -s &" >> ~/.profile
-    echo "nitrogen --restore" >> ~/.profile
-    echo "picom --config ~/.config/awesome/configurations/picom.conf &" >> ~/.profile
+    echo "nm-applet --indicator & # Network Manager" >> ~/.profile
+    echo "(sleep 1; volumeicon) & # Sound controller" >> ~/.profile
+    echo "xfce4-power-manager & # power-manager" >> ~/.profile
+    echo "optimus-manager-qt & # nvidia-intel gpu switcher" >> ~/.profile
+    echo "udiskie -s & #auto mount usb" >> ~/.profile
+    echo "nitrogen --restore # wallpapers" >> ~/.profile
+    echo "picom & # Transparency, fade, shadows" >> ~/.profile
     # start gnome-keyring on every session (it stores passwords)
-	echo "eval \$(/usr/bin/gnome-keyring-daemon --start --components=pkcs11,secrets,ssh)" >> ~/.profile
+	echo "eval \$(/usr/bin/gnome-keyring-daemon --start --components=pkcs11,secrets,ssh) # remember passwords" >> ~/.profile
     echo "SSH_AUTH_SOCK=/run/user/1000/keyring/ssh" >> ~/.profile
 	echo "export SSH_AUTH_SOCK" >> ~/.profile
     # start polkit
-	echo "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &" >> ~/.profile
+	echo "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 & # ask for sudo permission gui" >> ~/.profile
     # Make numberpad usable
-    echo "numlockx on" >> ~/.profile
+    echo "numlockx on # Please no caps lock" >> ~/.profile
 
 
     echo "GTK_IM_MODULE=fcitx" | sudo tee -a /etc/environment
