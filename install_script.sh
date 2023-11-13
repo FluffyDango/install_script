@@ -15,9 +15,8 @@ arch_packages+=(ttf-roboto ttf-dejavu noto-fonts noto-fonts-emoji ttf-hanazono a
 
 general_packages=(base-devel jre-openjdk jdk-openjdk vim neovim firefox lib32-nvidia-utils nvidia-lts nvidia-utils nvidia-settings lib32-primus vlc flameshot pass feh gedit steam xclip numlockx gparted grub-customizer nautilus zsh font-manager discord calibre usb_modeswitch gvfs gvfs-gphoto2 android-file-transfer)
 
-yay_packages=(lorien-bin visual-studio-code-bin zsh-theme-powerlevel10k-git onlyoffice-bin numix-circle-icon-theme-git neovim-plug vim-plug qt5-styleplugins oh-my-zsh-git gnome-terminal-transparency optimus-manager optimus-manager-qt downgrade teams)
+yay_packages=(lorien-bin visual-studio-code-bin neovim-plug vim-plug optimus-manager optimus-manager-qt downgrade teams)
 # Fonts
-yay_packages+=(ttf-ms-fonts ttf-vista-fonts ttf-monaco ttf-qurancomplex-fonts)
 
 #############################################################
 
